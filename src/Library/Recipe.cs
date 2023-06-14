@@ -9,12 +9,14 @@ using System.Collections.Generic;
 
 namespace Full_GRASP_And_SOLID
 {
-    public class Recipe : IRecipeContent // Modificado por DIP
+    public class Recipe : IRecipeContent, TimerClient // Modificado por DIP
     {
         // Cambiado por OCP
         private IList<BaseStep> steps = new List<BaseStep>();
 
         public Product FinalProduct { get; set; }
+
+        public bool Cooked = false;
 
         // Agregado por Creator
         public void AddStep(Product input, double quantity, Equipment equipment, int time)
@@ -62,5 +64,32 @@ namespace Full_GRASP_And_SOLID
 
             return result;
         }
+
+        public int GetCookTime()
+        {
+            int result = 0;
+
+            foreach (BaseStep step in this.steps)
+            {
+                result = result + step.Time;
+            }
+
+            return result;
+        }
+
+         private CountdownTimer timer;
+
+        public void Cook()
+        {
+            timer = new CountdownTimer();
+            timer.Register(GetCookTime(), this);
+        }
+
+        public void TimeOut()
+        {
+            Cooked = true; 
+        }
+
+        //El patron Observer es usado, ya que Recipe actua como un observer de CountdownTimer.
     }
 }
